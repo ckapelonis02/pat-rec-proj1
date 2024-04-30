@@ -13,8 +13,7 @@ function [eigenval, eigenvec, order] = myPCA(X)
 % ====================== YOUR CODE HERE ======================
 %
 
-%FIX!!!!!!!!!!!
-R = cov(X_centered); % Estimated covariance from samples
+R = 1/nSamples .* transpose(X_centered) * X_centered;
 
 %D: diagonal matrix of eigenvalues
 %V: Matrix columns are the eigenvectors

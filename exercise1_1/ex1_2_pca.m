@@ -83,27 +83,28 @@ xlabel('Normalized feature 1')
 ylabel('Normalized feature 2')
 hold off
 
+fprintf('Program paused. Press enter to continue.\n');
 pause;
+
+% Calculate the Explained Variance
+% ADD YOUR CODE
+ExplainedVar = eigvals/sum(eigvals);
+fprintf(' Explained Variance(1st PC = %f) (2nd PC = %f)\n', ExplainedVar(1), ExplainedVar(2));
 
 % Projection of the data onto the principal components
 % ADD YOUR CODE
-X_PCA = 
+X_PCA = projectData(X_norm, eigvecs, 2);
 
 % Plot the projection of the data onto the principal components
 figure;
 hold on
-plot(X_PCA(Y==0, 1), X_PCA(Y==0, 2), 'bo','MarkerFaceColor', 'b', 'MarkerEdgeColor', 'none', 'MarkerSize', 4 )
-plot(X_PCA(Y==1, 1), X_PCA(Y==1, 2), 'ro','MarkerFaceColor', 'r', 'MarkerEdgeColor', 'none', 'MarkerSize', 4 );
+plot(X_PCA(Y==0, 1), X_PCA(Y==0, 1), 'bo','MarkerFaceColor', 'b', 'MarkerEdgeColor', 'none', 'MarkerSize', 4 )
+plot(-X_PCA(Y==1, 2), X_PCA(Y==1, 2), 'ro','MarkerFaceColor', 'r', 'MarkerEdgeColor', 'none', 'MarkerSize', 4 );
 title('PCA of Breast Cancer Dataset');
 xlabel('Principal Component 1');
 ylabel('Principal Component 2');
 axis square;
 hold off;
-
-% Calculate the Explained Variance
-% ADD YOUR CODE
-ExplainedVar = 
-fprintf(' Explained Variance(1st PC = %f) (2nd PC = %f)\n', ExplainedVar(1), ExplainedVar(2));
 
 % Print the first principal component
 fprintf(' 1st Principal Component = %f %f \n', eigvecs(1,1), eigvecs(2,1));
@@ -127,8 +128,14 @@ K = 1;
 Z = projectData(X_norm, eigvecs, K);
 fprintf('Projection of the first example: %f\n', Z(1));
 
+%  Plot the data in this reduced dimension space
+figure;
+plot(Z(Y==0), Z(Y==0), 'bo', Z(Y==1), Z(Y==1), 'ro'); % eigvec is y=x line in 2D space
+title('Reduced data');
+xlabel('Values of data');
+
 %  Use the K principal components to recover the Data in 2D
-X_recover  = recoverData(Z, eigvecs, K);
+X_recover = recoverData(Z, eigvecs, K);
 fprintf('Approximation of the first example: %f %f\n', X_recover(1, 1), X_recover(1, 2));
 
 %  Draw the lines connecting the projected points to the original points
@@ -183,7 +190,8 @@ axis square;
 
 % Projection of the data onto the principal components
 % ADD YOUR CODE
-X_PCA = 
+K = 2
+X_PCA = projectData(X_norm, eigvecs, K);
 
 pause
 % Plot the samples on the first two principal components
@@ -196,9 +204,10 @@ hold off;
 
 
 
+
 % Calculate the Explained Variance of the first 2 Principal Components
 % ADD YOUR CODE
-ExplainedVar = 
+ExplainedVar = eigvals/sum(eigvals);
 fprintf(' Explained Variance(1st PC = %f) (2nd PC = %f)\n', ExplainedVar(1), ExplainedVar(2));
 
 
@@ -207,7 +216,6 @@ fprintf(' 1st Principal Component = %f %f \n', eigvecs(1,1), eigvecs(2,1));
 
 fprintf('Program paused. Press enter to continue.\n');
 pause;
-
 
 %% =============== Part 5: Loading and Visualizing Face Data =============
 %  We start the exercise by first loading and visualizing the dataset.
