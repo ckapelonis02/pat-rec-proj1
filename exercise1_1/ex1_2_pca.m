@@ -190,7 +190,7 @@ axis square;
 
 % Projection of the data onto the principal components
 % ADD YOUR CODE
-K = 2
+K = 2;
 X_PCA = projectData(X_norm, eigvecs, K);
 
 pause
@@ -217,6 +217,18 @@ fprintf(' 1st Principal Component = %f %f \n', eigvecs(1,1), eigvecs(2,1));
 fprintf('Program paused. Press enter to continue.\n');
 pause;
 
+
+
+
+
+
+
+
+
+
+
+
+
 %% =============== Part 5: Loading and Visualizing Face Data =============
 %  We start the exercise by first loading and visualizing the dataset.
 %  The following code will load the dataset into your environment
@@ -230,14 +242,15 @@ load ('data/faces.mat')
 displayData(X(1:100, :));
 
 fprintf('Program paused. Press enter to continue.\n');
-%pause;
+pause;
 
 %% =========== Part 6: PCA on Face Data: Eigenfaces  ===================
 %  Run PCA and visualize the eigenvectors which are in this case eigenfaces
 %  We display the first 36 eigenfaces.
 %
+
 fprintf(['\nRunning PCA on face dataset.\n' ...
-         '(this mght take a minute or two ...)\n\n']);
+         '(this might take a minute or two ...)\n\n']);
 
 %  Before running PCA, it is important to first normalize X by subtracting 
 %  the mean value from each feature
@@ -246,9 +259,8 @@ fprintf(['\nRunning PCA on face dataset.\n' ...
 %  Run PCA
 [eigvals, eigvecs, order] = myPCA(X_norm);
 
-%  Visualize the top 36 eigenvectors found (eigenfaces)
+%  Visualize the top #numOfComps eigenvectors found (eigenfaces)
 displayData(eigvecs(:, 1:36)');
-
 fprintf('Program paused. Press enter to continue.\n');
 pause;
 
@@ -274,8 +286,7 @@ pause;
 
 fprintf('\nVisualizing the projected (reduced dimension) faces.\n\n');
 
-K = 100;
-X_rec  = recoverData(Z, eigvecs, K);
+X_rec = recoverData(Z, eigvecs, K);
 
 % Display normalized data
 subplot(1, 2, 1);
@@ -288,7 +299,3 @@ subplot(1, 2, 2);
 displayData(X_rec(1:100,:));
 title('Recovered faces');
 axis square;
-
-
-
-
