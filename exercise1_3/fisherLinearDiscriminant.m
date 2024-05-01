@@ -7,8 +7,8 @@ function v = fisherLinearDiscriminant(X1, X2)
     mu1 = mean(X1);
     mu2 = mean(X2);
     
-    S1 = cov(X1);
-    S2 = cov(X2);
+    S1 = 1/m1 * X1.' * X1;
+    S2 = 1/m2 * X2.' * X2;
 
     Sw = m1/m.*S1 .+ m2/m.*S2;
 
