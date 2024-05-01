@@ -22,7 +22,6 @@ R = 1/nSamples .* transpose(X_centered) * X_centered;
 eigenval = diag(D); %Vector of eigenvalues
 [eigenval, order] = sort(eigenval, 1, 'descend'); %Sort them
 eigenvec = V(:, order); %Corresponding eigenvectors
-varperc = eigenval / sum(eigenval); %Variance Contribution
 
 % =========================================================================
 

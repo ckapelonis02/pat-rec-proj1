@@ -37,7 +37,9 @@ X1 = X_norm(c==1, :);
 X2 = X_norm(c==2, :);
 
 %  Visualize the example dataset
-figure(1)
+figure;
+subplot(1, 2, 1)
+title('LDA')
 hold on
 plot(X1(:, 1), X1(:, 2), 'bo');
 plot(X2(:, 1), X2(:, 2), 'rs');
@@ -107,7 +109,8 @@ X_rec  = recoverDataPCA(Z, U, K);
 %  Plot the normalized dataset (returned from principalComponentAnalysis)
 %  Draw lines connecting the projected points to the original points
 fprintf('\nVisualizing example dataset for PCA.\n\n');
-figure(2)
+subplot(1, 2, 2)
+title('PCA')
 hold on;
 axis([-2.1 2.1 -2.1 2.1]); axis square;
 drawLine(-2.3*U(:,1), 2.3*U(:,1), '-g', 'LineWidth', 1);
@@ -120,13 +123,15 @@ for i = 1:size(X_norm, 1)
 end
 hold off
 
+fprintf('Program paused. Press enter to continue.\n');
+pause;
 
 %% =============== PART B: FisherIris DATA ===============
 % Apply LDA to the Fisher Iris Dataset
 
-%Load Fisher Iris Data
+% Load Fisher Iris Data
 
-load('fisheriris.mat');
+load('data/fisheriris.mat'); %REMOVE THIS!!! TODO
 
 % Convert the species cell into an array containig class labels
 % Class 0 for "setosa"
@@ -138,18 +143,19 @@ iris_labels = 1*cellfun(@(x)isequal(x,'versicolor'),species)+2*cellfun(@(x)isequ
 [meas_norm, mu, sigma] = featureNormalize(meas);
 
 % Get the data for each class
-IRIS1 = 			%Samples of Class 0
-IRIS2 = 			%Samples of Class 1
-IRIS3 = 			%Samples of Class 2
+IRIS1 = meas_norm(iris_labels == 0, :);			%Samples of Class 0
+IRIS2 = meas_norm(iris_labels == 1, :);			%Samples of Class 1
+IRIS3 = meas_norm(iris_labels == 2, :);			%Samples of Class 2
 
 
 %  Visualize the example dataset
-figure(3)
+figure;
+subplot(1, 2, 1)
+title('Before LDA (4D data - visualize only 2 features)')
 hold on
 plot(IRIS1(:, 1), IRIS1(:, 2), 'bo');
 plot(IRIS2(:, 1), IRIS2(:, 2), 'rs');
 plot(IRIS3(:, 1), IRIS3(:, 2), 'g+');
-hold off
 
 NewDim = 2; %The new feature dimension after applying LDA
 v = myLDA(meas_norm, iris_labels, NewDim);
@@ -157,11 +163,16 @@ v = myLDA(meas_norm, iris_labels, NewDim);
 %  Project the data on the direction of the two dimensional v
 [meas_reduced] = projectDataLDA(meas_norm, v);
 
+IRIS1_reduced = meas_reduced(iris_labels == 0, :);			%Samples of Class 0
+IRIS2_reduced = meas_reduced(iris_labels == 1, :);			%Samples of Class 1
+IRIS3_reduced = meas_reduced(iris_labels == 2, :);			%Samples of Class 2
+
 %  Visualize the sample dataset after LDA is applied
 %  Use different color/symbol for each class
-figure(4)
+subplot(1, 2, 2)
+title('After LDA (2D data)')
 hold on
-
+plot(IRIS1_reduced(:, 1), IRIS1_reduced(:, 2), 'bo');
+plot(IRIS2_reduced(:, 1), IRIS2_reduced(:, 2), 'rs');
+plot(IRIS3_reduced(:, 1), IRIS3_reduced(:, 2), 'g+');
 hold off
-
-
