@@ -28,7 +28,7 @@ fprintf('Visualizing example dataset for LDA.\n\n');
 
 %  The following command loads the dataset. You should now have the 
 %  variable X in your environment
-load ('ex1_3_data1.mat');
+load ('data/data2.mat');
 
 %  Before running PCA, it is important to first normalize X
 [X_norm, mu, sigma] = featureNormalize(X);
@@ -54,7 +54,6 @@ pause;
 
 v = fisherLinearDiscriminant(X1, X2);
 
-
 hold on
 drawLine(-5*v', 5*v', '-g', 'LineWidth', 1);
 hold off
@@ -70,7 +69,6 @@ pause;
 % Reconstruct the data on the line defined by vector v
 [X1_rec]  = recoverDataLDA(Z1, v);
 [X2_rec]  = recoverDataLDA(Z2, v);
-
 
 
 %  Draw lines connecting the projected points to the original points
