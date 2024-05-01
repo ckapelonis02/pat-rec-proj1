@@ -1,5 +1,4 @@
 function v = fisherLinearDiscriminant(X1, X2)
-
     m1 = size(X1, 1);
     m2 = size(X2, 1);
     m = m1 + m2;
@@ -10,7 +9,7 @@ function v = fisherLinearDiscriminant(X1, X2)
     S1 = 1/m1 * X1.' * X1;
     S2 = 1/m2 * X2.' * X2;
 
-    Sw = m1/m.*S1 .+ m2/m.*S2;
+    Sw = m1/m.*S1 + m2/m.*S2;
 
     v = inv(Sw)*(mu1 - mu2).';
     

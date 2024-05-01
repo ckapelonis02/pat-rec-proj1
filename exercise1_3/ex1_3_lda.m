@@ -28,10 +28,10 @@ fprintf('Visualizing example dataset for LDA.\n\n');
 
 %  The following command loads the dataset. You should now have the 
 %  variable X in your environment
-load ('data/data2.mat');
+load('data/data2.mat');
 
-%  Before running PCA, it is important to first normalize X
-[X_norm, mu, sigma] = featureNormalize(X);
+%  Before running LDA, it is important to first normalize X
+[X_norm, ~, ~] = featureNormalize(X);
 
 X1 = X_norm(c==1, :);
 X2 = X_norm(c==2, :);
@@ -67,11 +67,9 @@ pause;
 [Z1] = projectDataLDA(X1, v);
 [Z2] = projectDataLDA(X2, v);
 
-
 % Reconstruct the data on the line defined by vector v
 [X1_rec]  = recoverDataLDA(Z1, v);
 [X2_rec]  = recoverDataLDA(Z2, v);
-
 
 %  Draw lines connecting the projected points to the original points
 fprintf('\nDisplaying LDA on example dataset.\n\n');
@@ -130,8 +128,7 @@ pause;
 % Apply LDA to the Fisher Iris Dataset
 
 % Load Fisher Iris Data
-
-load('data/fisheriris.mat'); %REMOVE THIS!!! TODO
+load('data/fisheriris.mat');
 
 % Convert the species cell into an array containig class labels
 % Class 0 for "setosa"
@@ -176,3 +173,5 @@ plot(IRIS1_reduced(:, 1), IRIS1_reduced(:, 2), 'bo');
 plot(IRIS2_reduced(:, 1), IRIS2_reduced(:, 2), 'rs');
 plot(IRIS3_reduced(:, 1), IRIS3_reduced(:, 2), 'g+');
 hold off
+
+saving_figs('C:\Users\harilaos\Desktop\1\SMAP-proj1\exercise1_3');
