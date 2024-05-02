@@ -95,8 +95,7 @@ pause;
 fprintf('\nRunning PCA on example dataset.\n\n');
 
 %  Run PCA
-[U, S] = myPCA(X_norm);
-
+[U, S] = myPCA(X_norm); % already standardized
 
 %  Project the data onto K = 1 dimension
 K = 1;
@@ -136,14 +135,13 @@ load('data/fisheriris.mat');
 % Class 2 for "virginica"
 iris_labels = 1*cellfun(@(x)isequal(x,'versicolor'),species)+2*cellfun(@(x)isequal(x,'virginica'),species);
 
-%  Before running PCA, it is important to first normalize X
+%  Before running LDA, it is important to first normalize X
 [meas_norm, mu, sigma] = featureNormalize(meas);
 
 % Get the data for each class
 IRIS1 = meas_norm(iris_labels == 0, :);			%Samples of Class 0
 IRIS2 = meas_norm(iris_labels == 1, :);			%Samples of Class 1
 IRIS3 = meas_norm(iris_labels == 2, :);			%Samples of Class 2
-
 
 %  Visualize the example dataset
 figure;
@@ -174,4 +172,4 @@ plot(IRIS2_reduced(:, 1), IRIS2_reduced(:, 2), 'rs');
 plot(IRIS3_reduced(:, 1), IRIS3_reduced(:, 2), 'g+');
 hold off
 
-saving_figs('C:\Users\harilaos\Desktop\1\SMAP-proj1\exercise1_3');
+% saving_figs('C:\Users\harilaos\Desktop\1\SMAP-proj1\exercise1_3\images');

@@ -11,7 +11,6 @@ function [U, S] = myPCA(X)
 U = zeros(nFeat);
 S = zeros(nFeat);
 
-% ====================== YOUR CODE GOES HERE ======================
 % Instructions: You should first compute the covariance matrix. Then, 
 %  compute the eigenvectors and eigenvalues of the covariance matrix. 
 %
@@ -28,6 +27,5 @@ S = diag(D); %Vector of eigenvalues
 [S, order] = sort(S, 1, 'descend'); %Sort them
 U = V(:, order); %Corresponding eigenvectors
 
-% =========================================================================
 
 end
