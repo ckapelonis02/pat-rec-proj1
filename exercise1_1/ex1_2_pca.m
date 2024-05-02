@@ -21,15 +21,15 @@ clear all; close all; clc
 %  We start this exercise by using a small dataset that is easily to
 %  visualize
 %
-fprintf('Visualizing example dataset for PCA.\n\n');
 
 %  The following command loads the breast cancert dataset. You should now have the 
 %  variable X in your environment
-Data=csvread('data/breast_cancer_data.csv');
+Data = csvread('data/breast_cancer_data.csv');
 NSamples = 100; %Get the first NSamples only for better visualization
 X=Data(1:NSamples,1:end-1); % Get all features
 Y=Data(1:NSamples,end);
 
+fprintf('Visualizing example dataset for PCA.\n\n');
 % Visualize the example dataset in 2D using sample feature pairs
 % Repeat using different feature pairs on the 2D space
 for i = 1:6
@@ -55,7 +55,7 @@ X=Data(1:NSamples, 1:2); % Get 2 first features
 
 % Before running PCA, it is important to first normalize X
 % Add the necessary code to perform standardization in featureNormalize
-[X_norm, mu, sigma] = featureNormalize(X);
+[X_norm, ~, ~] = featureNormalize(X);
 
 % Plotting before and after standardization
 figure;
@@ -68,11 +68,11 @@ hold on
 plot(X_norm(Y==0, 1), X_norm(Y==0, 2), 'go',X_norm(Y==1, 1), X_norm(Y==1, 2), 'ko' );
 
 %  Run PCA
-[eigvals, eigvecs, order] = myPCA(X_norm);
+[eigvals, eigvecs, ~] = myPCA(X_norm);
 
 % Plot the samples on the first two principal components
 figure;
-plot(X_norm(Y==0, 1), X_norm(Y==0, 2), 'bo',X_norm(Y==1, 1), X_norm(Y==1, 2), 'ro' );
+plot(X_norm(Y==0, 1), X_norm(Y==0, 2), 'bo', X_norm(Y==1, 1), X_norm(Y==1, 2), 'ro');
 hold on
 % Plot the principal component vectors (arrows)
 scale = 3; % Scale factor for the arrows
@@ -81,29 +81,29 @@ quiver(0, 0, eigvecs(1,2)*scale*eigvals(2), eigvecs(2,2)*scale*eigvals(2), 'b', 
 title('Normalized Samples and principal components')
 xlabel('Normalized feature 1')
 ylabel('Normalized feature 2')
+axis square
 hold off
 
 fprintf('Program paused. Press enter to continue.\n');
 pause;
 
 % Calculate the Explained Variance
-% ADD YOUR CODE
 ExplainedVar = eigvals/sum(eigvals);
-fprintf(' Explained Variance(1st PC = %f) (2nd PC = %f)\n', ExplainedVar(1), ExplainedVar(2));
+fprintf('Explained Variance (1st PC = %f) (2nd PC = %f)\n', ExplainedVar(1), ExplainedVar(2));
 
 % Projection of the data onto the principal components
-% ADD YOUR CODE
 X_PCA = projectData(X_norm, eigvecs, 2);
-
+X_PCA_1 = X_PCA(:, 1)*(eigvecs(:, 1).');
+X_PCA_2 = X_PCA(:, 2)*(eigvecs(:, 2).');
 % Plot the projection of the data onto the principal components
 figure;
 hold on
-plot(X_PCA(Y==0, 1), X_PCA(Y==0, 1), 'bo','MarkerFaceColor', 'b', 'MarkerEdgeColor', 'none', 'MarkerSize', 4 )
-plot(-X_PCA(Y==1, 2), X_PCA(Y==1, 2), 'ro','MarkerFaceColor', 'r', 'MarkerEdgeColor', 'none', 'MarkerSize', 4 );
+axis square;
+plot(X_PCA_1(:, 1), X_PCA_1(:, 2), 'bo','MarkerFaceColor', 'b', 'MarkerEdgeColor', 'none', 'MarkerSize', 4 );
+plot(X_PCA_2(:, 1), X_PCA_2(:, 2), 'ro','MarkerFaceColor', 'r', 'MarkerEdgeColor', 'none', 'MarkerSize', 4 );
 title('PCA of Breast Cancer Dataset');
 xlabel('Principal Component 1');
 ylabel('Principal Component 2');
-axis square;
 hold off;
 
 % Print the first principal component
@@ -170,7 +170,7 @@ X=Data(1:NSamples,1:end-1); % Get all features from the breast cancer dataset
 
 % Before running PCA, it is important to first normalize X
 % Add the necessary code to perform standardization in featureNormalize
-[X_norm, mu, sigma] = featureNormalize(X);
+[X_norm, ~, ~] = featureNormalize(X);
 
 %  Run PCA
 [eigvals, eigvecs, order] = myPCA(X_norm);
@@ -193,40 +193,30 @@ axis square;
 K = 2;
 X_PCA = projectData(X_norm, eigvecs, K);
 
-pause
-% Plot the samples on the first two principal components
+% Projection of the data onto the principal components
+X_PCA_1 = X_PCA(:, 1)*(eigvecs(:, 1).');
+X_PCA_2 = X_PCA(:, 2)*(eigvecs(:, 2).');
+% Plot the projection of the data onto the principal components
 figure;
-scatter(X_PCA(:,1), X_PCA(:,2), 30, Y, 'filled');
+hold on
+axis square;
+plot(X_PCA_1(:, 1), X_PCA_1(:, 2), 'bo','MarkerFaceColor', 'b', 'MarkerEdgeColor', 'none', 'MarkerSize', 4 );
+plot(X_PCA_2(:, 1), X_PCA_2(:, 2), 'ro','MarkerFaceColor', 'r', 'MarkerEdgeColor', 'none', 'MarkerSize', 4 );
 title('Breast Cancer Dataset - PCA reduced in 2D');
 xlabel('Principal Component 1');
 ylabel('Principal Component 2');
 hold off;
-
-
-
 
 % Calculate the Explained Variance of the first 2 Principal Components
 % ADD YOUR CODE
 ExplainedVar = eigvals/sum(eigvals);
 fprintf(' Explained Variance(1st PC = %f) (2nd PC = %f)\n', ExplainedVar(1), ExplainedVar(2));
 
-
 % Print the first principal component
 fprintf(' 1st Principal Component = %f %f \n', eigvecs(1,1), eigvecs(2,1));
 
 fprintf('Program paused. Press enter to continue.\n');
 pause;
-
-
-
-
-
-
-
-
-
-
-
 
 
 %% =============== Part 5: Loading and Visualizing Face Data =============
@@ -239,6 +229,7 @@ fprintf('\nLoading face dataset.\n\n');
 load ('data/faces.mat')
 
 %  Display the first 100 faces in the dataset
+figure;
 displayData(X(1:100, :));
 
 fprintf('Program paused. Press enter to continue.\n');
@@ -260,7 +251,9 @@ fprintf(['\nRunning PCA on face dataset.\n' ...
 [eigvals, eigvecs, order] = myPCA(X_norm);
 
 %  Visualize the top #numOfComps eigenvectors found (eigenfaces)
+figure;
 displayData(eigvecs(:, 1:36)');
+
 fprintf('Program paused. Press enter to continue.\n');
 pause;
 
@@ -270,32 +263,35 @@ pause;
 %  If you are applying a machine learning algorithm 
 fprintf('\nDimension reduction for face dataset.\n\n');
 
-K = 100;
-Z = projectData(X_norm, eigvecs, K);
-
-fprintf('The projected data Z has a size of: ')
-fprintf('%d ', size(Z));
-
-fprintf('\n\nProgram paused. Press enter to continue.\n');
-pause;
-
-%% ==== Part 8: Visualization of Faces after PCA Dimensionality Reduction ====
-%  Project images to the eigen space using the top K eigen vectors and 
-%  visualize only using those K dimensions
-%  Compare to the original input, which is also displayed
-
-fprintf('\nVisualizing the projected (reduced dimension) faces.\n\n');
-
-X_rec = recoverData(Z, eigvecs, K);
-
 % Display normalized data
-subplot(1, 2, 1);
+figure;
 displayData(X_norm(1:100,:));
 title('Original faces');
 axis square;
 
-% Display reconstructed data from only k eigenfaces
-subplot(1, 2, 2);
-displayData(X_rec(1:100,:));
-title('Recovered faces');
-axis square;
+for K = [10, 50, 100, 200, 500]
+    Z = projectData(X_norm, eigvecs, K);
+    
+    fprintf('The projected data Z has a size of: ')
+    fprintf('%d ', size(Z));
+    
+    fprintf('\n\nProgram paused. Press enter to continue.\n');
+    pause;
+    
+    %% ==== Part 8: Visualization of Faces after PCA Dimensionality Reduction ====
+    %  Project images to the eigen space using the top K eigen vectors and 
+    %  visualize only using those K dimensions
+    %  Compare to the original input, which is also displayed
+    
+    fprintf('\nVisualizing the projected (reduced dimension) faces.\n\n');
+    
+    X_rec = recoverData(Z, eigvecs, K);
+    
+    % Display reconstructed data from only k eigenfaces
+    figure;
+    displayData(X_rec(1:100,:));
+    title(sprintf('Recovered faces (%d principal compontents)', K));
+    axis square;
+end
+
+%saving_figs('C:\Users\harilaos\Desktop\1\SMAP-proj1\exercise1_1\images');

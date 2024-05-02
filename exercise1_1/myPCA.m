@@ -10,9 +10,6 @@ function [eigenval, eigenvec, order] = myPCA(X)
 % Make sure each feature from the data is zero mean
 [X_centered, mu, sigma] = featureNormalize(X);
 
-% ====================== YOUR CODE HERE ======================
-%
-
 R = 1/nSamples .* transpose(X_centered) * X_centered;
 
 %D: diagonal matrix of eigenvalues
@@ -22,7 +19,5 @@ R = 1/nSamples .* transpose(X_centered) * X_centered;
 eigenval = diag(D); %Vector of eigenvalues
 [eigenval, order] = sort(eigenval, 1, 'descend'); %Sort them
 eigenvec = V(:, order); %Corresponding eigenvectors
-
-% =========================================================================
 
 end
