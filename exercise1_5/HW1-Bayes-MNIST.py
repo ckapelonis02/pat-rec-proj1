@@ -181,14 +181,13 @@ def aspect_ratio(image):
 #     ## Create a single scalar as a centroid feature using x+(y * w) where w is the width of the image
 #     centroid =
 #     return centroid
-#
-# def min_max_scaling(X, min_val=-1, max_val=1):
-#   """Scales features to a range between min_val and max_val."""
-#   #### ADD YOUR CODE HERE #####
-#   X_scaled =
-#   return X_scaled
-#
-#
+
+def min_max_scaling(X, min_val=-1, max_val=1):
+  """Scales features to a range between min_val and max_val."""
+  X_scaled = min_val + (max_val - min_val) * ((X - min(X)) / (max(X) - min(X)))
+  return X_scaled
+
+
 def visualize_bounding_box(image, color='red'):
   """Visualizes the bounding box around the digit in an image."""
   bbox = calculate_bounding_box(image)
@@ -228,10 +227,23 @@ def main():
   target_test = df_test.label
   data_test = df_test.iloc[:, 1:]
 
+
+
   #################### Create the features #############################
   # Calculate aspect ratio as the first feature
   df_train['aspect_ratio'] = data_train.apply(aspect_ratio, axis=1)
-  # df_train['aspect_ratio'] = min_max_scaling(df_train['aspect_ratio'])
+  ## Find and print the max and min aspect ratio for labels 1 and 2
+  max_1 = df_train[df_train['label'] == 1]['aspect_ratio'].max()
+  max_2 = df_train[df_train['label'] == 2]['aspect_ratio'].max()
+  min_1 = df_train[df_train['label'] == 1]['aspect_ratio'].min()
+  min_2 = df_train[df_train['label'] == 2]['aspect_ratio'].min()
+  print("Before normalization: ", max_1, max_2, min_1, min_2)
+  df_train['aspect_ratio'] = min_max_scaling(df_train['aspect_ratio'])
+  max_1 = df_train[df_train['label'] == 1]['aspect_ratio'].max()
+  max_2 = df_train[df_train['label'] == 2]['aspect_ratio'].max()
+  min_1 = df_train[df_train['label'] == 1]['aspect_ratio'].min()
+  min_2 = df_train[df_train['label'] == 2]['aspect_ratio'].min()
+  print("After normalization: ", max_1, max_2, min_1, min_2)
 
   # # Calculate the number of non-zero pixels as the second feature
   # df_train['fg_pixels'] = data_train.apply(foreground_pixels, axis=1)
@@ -246,13 +258,6 @@ def main():
   #   # print(aspect_ratio(data_train.iloc[sample]))
   #   sample_image = data_train.iloc[sample].values.reshape(28, 28)
   #   visualize_bounding_box(sample_image)
-
-  ## Find and print the max and min aspect ratio for labels 1 and 2
-  max_1 = df_train[df_train['label'] == 1]['aspect_ratio'].max()
-  max_2 = df_train[df_train['label'] == 2]['aspect_ratio'].max()
-  min_1 = df_train[df_train['label'] == 1]['aspect_ratio'].min()
-  min_2 = df_train[df_train['label'] == 2]['aspect_ratio'].min()
-  print(max_1, max_2, min_1, min_2)
 
   # # Define the features to use for both train and test in this experiment
   # features = ["aspect_ratio", "fg_pixels", "centroid"]
