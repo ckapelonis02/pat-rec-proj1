@@ -6,36 +6,38 @@ import pandas as pd
 from PIL import Image, ImageDraw
 
 
-# class MyBayesClassifier:
-#   def __init__(self):
-#     self.class_priors = {}
-#     self.class_stats = {}
-#
-#   def train(self, X, y):
-#     """
-#     Train the classifier under the assumption of Gaussian distributions:
-#       calculate priors and Gaussian distribution parameters for each class.
-#
-#     Args:
-#     X (pd.DataFrame): DataFrame with features.
-#     y (pd.Series): Series with target class labels.
-#     """
-#     #### ADD YOUR CODE HERE #####
-#     self.classes_ = np.unique(y)
-#     for class_label in self.classes_:
-#       # Filter data by class
-#       X_class =
-#
-#       # Calculate prior probability for the class
-#       self.class_priors[class_label] =
-#
-#
-#       # Calculate mean and covariance for the class
-#       # Adding a small value to the covariance for numerical stability
-#       self.class_stats[class_label] =
-#
-#
-#
+class MyBayesClassifier:
+  def __init__(self):
+    self.class_priors = {}
+    self.class_stats = {}
+
+  def train(self, X, y):
+    """
+    Train the classifier under the assumption of Gaussian distributions:
+      calculate priors and Gaussian distribution parameters for each class.
+
+    Args:
+    X (pd.DataFrame): DataFrame with features.
+    y (pd.Series): Series with target class labels.
+    """
+
+    self.classes_ = np.unique(y)
+    for class_label in self.classes_:
+      # Filter data by class
+      X_class = X[y == class_label]
+
+      # Calculate prior probability for the class
+      self.class_priors[class_label] = len(X_class) / len(X)
+
+      # Calculate mean and covariance for the class
+      # Adding a small value to the covariance for numerical stability
+      self.class_stats[class_label] = {
+        'mean': 1/len(X_class) * sum(X_class['aspect_ratio']),
+        'std': np.sqrt(1 / len(X_class) * (sum(X_class['aspect_ratio'] - (1/len(X_class) * sum(X_class['aspect_ratio']))))**2)
+      }
+
+
+
 #   def predict(self, X):
 #     """
 #     Predict class labels for each test sample in X.
@@ -230,20 +232,38 @@ def main():
 
 
   #################### Create the features #############################
+  # a)
   # Calculate aspect ratio as the first feature
   df_train['aspect_ratio'] = data_train.apply(aspect_ratio, axis=1)
-  ## Find and print the max and min aspect ratio for labels 1 and 2
-  max_1 = df_train[df_train['label'] == 1]['aspect_ratio'].max()
-  max_2 = df_train[df_train['label'] == 2]['aspect_ratio'].max()
-  min_1 = df_train[df_train['label'] == 1]['aspect_ratio'].min()
-  min_2 = df_train[df_train['label'] == 2]['aspect_ratio'].min()
-  print("Before normalization: ", max_1, max_2, min_1, min_2)
+
+  # ## Find and print the max and min aspect ratio for labels 1 and 2
+  # max_1 = df_train[df_train['label'] == 1]['aspect_ratio'].max()
+  # max_2 = df_train[df_train['label'] == 2]['aspect_ratio'].max()
+  # min_1 = df_train[df_train['label'] == 1]['aspect_ratio'].min()
+  # min_2 = df_train[df_train['label'] == 2]['aspect_ratio'].min()
+  # print(max_1, max_2, min_1, min_2)
+
+  # b)
+  ## Draw 10 sample images from the training data to make sure aspect ratio is correct
+  # for sample in range(10):
+  #   # print(aspect_ratio(data_train.iloc[sample]))
+  #   sample_image = data_train.iloc[sample].values.reshape(28, 28)
+  #   visualize_bounding_box(sample_image)
+
+  # c)
   df_train['aspect_ratio'] = min_max_scaling(df_train['aspect_ratio'])
-  max_1 = df_train[df_train['label'] == 1]['aspect_ratio'].max()
-  max_2 = df_train[df_train['label'] == 2]['aspect_ratio'].max()
-  min_1 = df_train[df_train['label'] == 1]['aspect_ratio'].min()
-  min_2 = df_train[df_train['label'] == 2]['aspect_ratio'].min()
-  print("After normalization: ", max_1, max_2, min_1, min_2)
+
+  # d, e)
+  # Create the Classifier object and train the Gaussian parameters (prior, mean, cov)
+  classifier = MyBayesClassifier()
+  # Train the classifier
+  trainData = df_train.iloc[:, 1:]
+  classifier.train(trainData, target_train)
+  print(classifier.class_stats.values())
+  assert (sum(classifier.class_priors.values()) == 1)
+
+
+
 
   # # Calculate the number of non-zero pixels as the second feature
   # df_train['fg_pixels'] = data_train.apply(foreground_pixels, axis=1)
@@ -253,23 +273,18 @@ def main():
   # df_train['centroid'] = data_train.apply(calculate_centroid, axis=1)
   # df_train['centroid'] = min_max_scaling(df_train['centroid'])
 
-  ## Draw 10 sample images from the training data to make sure aspect ratio is correct
-  # for sample in range(10):
-  #   # print(aspect_ratio(data_train.iloc[sample]))
-  #   sample_image = data_train.iloc[sample].values.reshape(28, 28)
-  #   visualize_bounding_box(sample_image)
-
   # # Define the features to use for both train and test in this experiment
   # features = ["aspect_ratio", "fg_pixels", "centroid"]
   #
   # ##########################################################
   # trainData = df_train[features]
-  #
+
   # # Create the Classifier object and train the Gaussian parameters (prior, mean, cov)
   # classifier = MyBayesClassifier()
   # # Train the classifier
-  # classifier.train(trainData,target_train)
-  #
+  # classifier.train(trainData, target_train)
+  # assert (sum(classifier.class_priors.values()) == 1)
+
   # # Create the repsective features for the test samples
   # df_test['aspect_ratio'] = data_test.apply(aspect_ratio, axis=1)
   # df_test['aspect_ratio'] = min_max_scaling(df_test['aspect_ratio'])
