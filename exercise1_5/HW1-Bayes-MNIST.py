@@ -27,69 +27,73 @@ class MyBayesClassifier:
       X_class = X[y == class_label]
 
       # Calculate prior probability for the class
-      self.class_priors[class_label] = len(X_class) / len(X)
+      self.class_priors[class_label] = len(X_class.values) / len(X)
 
       # Calculate mean and covariance for the class
       # Adding a small value to the covariance for numerical stability
+      m = np.mean(X_class.values, axis=0)
+      if m.shape[0] == 1:
+        s = np.std(X_class.values)
+      else:
+        s = np.cov(X_class.values[:, 0], X_class.values[:, 1])
       self.class_stats[class_label] = {
-        'mean': 1/len(X_class) * sum(X_class['aspect_ratio']),
-        'std': np.sqrt(1 / len(X_class) * (sum(X_class['aspect_ratio'] - (1/len(X_class) * sum(X_class['aspect_ratio']))))**2)
+        'mean': m,
+        'cov': s
       }
 
+  def predict(self, X):
+    """
+    Predict class labels for each test sample in X.
 
+    Args:
+    X (pd.DataFrame): DataFrame with features to predict.
 
-#   def predict(self, X):
-#     """
-#     Predict class labels for each test sample in X.
-#
-#     Args:
-#     X (pd.DataFrame): DataFrame with features to predict.
-#
-#     Returns:
-#     np.array: Predicted class labels.
-#     """
-#     #### ADD YOUR CODE HERE #####
-#     predictions =
-#     return np.array(predictions)
-#
-#   def _predict_instance(self, x):
-#     """
-#     Private helper to predict the class for a single instance.
-#
-#     Args:
-#     x (pd.Series): A single data point's features.
-#
-#     Returns:
-#     The predicted class label.
-#     """
-#     posteriors = []
-#
-#     # Calculate the posterior probability for each class
-#     #### ADD YOUR CODE HERE #####
-#
-#
-#     # Choose the class with the highest posterior probability
-#     #### ADD YOUR CODE HERE #####
-#     prediction =
-#     return prediction
-#
-#   def _calculate_likelihood_1D(self, x, mean, cov):
-#     """
-#     Calculate the Gaussian likelihood of the data x given class statistics.
-#
-#     Args:
-#     x (pd.Series): Features of the data point.
-#     mean (pd.Series): Mean features for the class.
-#     cov (pd.DataFrame): Covariance matrix of the features for the class.
-#
-#     Returns:
-#     float: The likelihood value.
-#     """
-#     #### ADD YOUR CODE HERE #####
-#     likelihood =
-#     return likelihood
-#
-#
+    Returns:
+    np.array: Predicted class labels.
+    """
+    predictions = X.apply(self._predict_instance, axis=1)
+    return np.array(predictions)
+
+  def _predict_instance(self, x):
+    """
+    Private helper to predict the class for a single instance.
+
+    Args:
+    x (pd.Series): A single data point's features.
+
+    Returns:
+    The predicted class label.
+    """
+    posteriors = []
+
+    # Calculate the posterior probability for each class
+    for class_label in self.classes_:
+      sample_mean, sample_std = self.class_stats[class_label].values()
+      p = self._calculate_likelihood(x, sample_mean, sample_std)
+      posteriors.append((class_label, p * self.class_priors[class_label]))
+
+    # Choose the class with the highest posterior probability
+    prediction = max(posteriors, key=lambda z: z[1])
+    return prediction[0]
+
+  def _calculate_likelihood(self, x, mean, cov):
+    """
+    Calculate the Gaussian likelihood of the data x given class statistics.
+
+    Args:
+    x (pd.Series): Features of the data point.
+    mean (pd.Series): Mean feature for the class.
+    cov (pd.DataFrame): Covariance matrix for the class.
+
+    Returns:
+    float: The likelihood value.
+    """
+    if mean.shape[0] > 1:
+      likelihood = multivariate_normal.pdf(x, mean=mean, cov=cov)
+    else:
+      likelihood = norm.pdf(x, loc=mean, scale=cov)
+    return likelihood
+
 # Calculate the bounding box
 def calculate_bounding_box(image):
   # Find non-zero foreground pixels
@@ -139,33 +143,33 @@ def aspect_ratio(image):
     print(f"Error processing image in row {image.name}: {e}")
     return np.nan  # Return NaN for rows with errors
 
-# def foreground_pixels(image):
-#   """
-#   Calculate the pixel density of the image, defined as the
-#   count of non-zero pixels
-#
-#   Args:
-#   image (np.array): A 1D numpy array representing the image.
-#
-#   Returns:
-#   int: The pixel density of the image.
-#   """
-#   try:
-#     # Extract image data and reshape it (assuming data is in a column named 'image')
-#     img = image.values.reshape(28, 28)
-#
-#     # Find non-zero foreground pixels
-#     #### ADD YOUR CODE HERE #####
-#     nonzero_pixels =
-#     if nonzero_pixels == 0:
-#       print(f"Warning: Couldn't find nonzero pixels on  {image.name}")
-#       return np.nan  # Return NaN if no foreground pixels found
-#   except (KeyError, ValueError) as e:
-#     print(f"Error processing image in row  {image.name}: {e}")
-#     return np.nan  # Return NaN for rows with errors
-#
-#   return nonzero_pixels
-#
+def foreground_pixels(image):
+  """
+  Calculate the pixel density of the image, defined as the
+  count of non-zero pixels
+
+  Args:
+  image (np.array): A 1D numpy array representing the image.
+
+  Returns:
+  int: The pixel density of the image.
+  """
+  try:
+    # Extract image data and reshape it (assuming data is in a column named 'image')
+    img = image.values.reshape(28, 28)
+
+    # Find non-zero foreground pixels
+    nonzero_pixels = np.nonzero(img)[0].size
+
+    if nonzero_pixels == 0:
+      print(f"Warning: Couldn't find nonzero pixels on  {image.name}")
+      return np.nan  # Return NaN if no foreground pixels found
+  except (KeyError, ValueError) as e:
+    print(f"Error processing image in row  {image.name}: {e}")
+    return np.nan  # Return NaN for rows with errors
+
+  return nonzero_pixels
+
 # def calculate_centroid(image):
 #     """
 #     Calculate the normalized centroid (center of mass) of the image.
@@ -256,19 +260,52 @@ def main():
   # d, e)
   # Create the Classifier object and train the Gaussian parameters (prior, mean, cov)
   classifier = MyBayesClassifier()
+
   # Train the classifier
-  trainData = df_train.iloc[:, 1:]
+  features = ['aspect_ratio']
+  trainData = df_train[features]
   classifier.train(trainData, target_train)
-  print(classifier.class_stats.values())
-  assert (sum(classifier.class_priors.values()) == 1)
+
+  assert(sum(classifier.class_priors.values()) == 1)
+
+  # f)
+  # Predict on the test samples (for the given feature set)
+  df_test['aspect_ratio'] = data_test.apply(aspect_ratio, axis=1)
+  df_test['aspect_ratio'] = min_max_scaling(df_test['aspect_ratio'])
+  test_data = df_test[features]
+  predictions = classifier.predict(test_data)
+
+
+  # g)
+  # Calculate accuracy as an example of validation
+  accuracy = accuracy_score(target_test, predictions)
+  print(f"Classification accuracy: {round(accuracy, 3)*100}%")
+
+
+  # h)
+  # Calculate the number of non-zero pixels as the second feature
+  df_train['fg_pixels'] = data_train.apply(foreground_pixels, axis=1)
+  df_train['fg_pixels'] = min_max_scaling(df_train['fg_pixels'])
+  classifier = MyBayesClassifier()
+  features = ['aspect_ratio', 'fg_pixels']
+  trainData = df_train[features]
+  classifier.train(trainData, target_train)
+  assert(sum(classifier.class_priors.values()) == 1)
+  df_test['fg_pixels'] = data_test.apply(foreground_pixels, axis=1)
+  df_test['fg_pixels'] = min_max_scaling(df_test['fg_pixels'])
+  test_data = df_test[features]
+  predictions = classifier.predict(test_data)
+  accuracy = accuracy_score(target_test, predictions)
+  print(f"Classification accuracy: {round(accuracy, 4)*100}%")
 
 
 
 
-  # # Calculate the number of non-zero pixels as the second feature
-  # df_train['fg_pixels'] = data_train.apply(foreground_pixels, axis=1)
-  # df_train['fg_pixels'] = min_max_scaling(df_train['fg_pixels'])
-  #
+
+
+
+
+
   # # Calculate the centroid feature as the third feature
   # df_train['centroid'] = data_train.apply(calculate_centroid, axis=1)
   # df_train['centroid'] = min_max_scaling(df_train['centroid'])
