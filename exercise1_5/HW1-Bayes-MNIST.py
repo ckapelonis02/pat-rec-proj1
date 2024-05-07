@@ -229,102 +229,102 @@ def visualize_bounding_box(image, color='red'):
 ######    MAIN - CREATE FEATURES - TRAIN (NAIVE) BAYES CLASSIFIER
 ##############################################################################
 def main():
-    for i in range(10):
-        for j in range(i, 10):
-            my_labels = [i, j]
-            if i == j: continue
-            print(my_labels)
-            # Read the training samples from the corresponding file
-            nTrainSamples = None  # specify 'None' if you want to read the whole file
-            df_train = pd.read_csv('data/mnist_train.csv', delimiter=',', nrows=nTrainSamples)
-            df_train = df_train[df_train['label'].isin(my_labels)]  # Get samples from the selected digits only
-            target_train = df_train.label
-            data_train = df_train.iloc[:, 1:]
+    my_labels = [1, 2]
+    print(f"Numbers are {my_labels}")
+    # Read the training samples from the corresponding file
+    nTrainSamples = None  # specify 'None' if you want to read the whole file
+    df_train = pd.read_csv('data/mnist_train.csv', delimiter=',', nrows=nTrainSamples)
+    df_train = df_train[df_train['label'].isin(my_labels)]  # Get samples from the selected digits only
+    target_train = df_train.label
+    data_train = df_train.iloc[:, 1:]
 
-            # Read the test samples from the corresponding file
-            nTestSamples = None  # specify 'None' if you want to read the whole file
-            df_test = pd.read_csv('data/mnist_test.csv', delimiter=',', nrows=nTestSamples)
-            df_test = df_test[df_test['label'].isin(my_labels)]  # Get samples from the selected digits only
-            target_test = df_test.label
-            data_test = df_test.iloc[:, 1:]
+    # Read the test samples from the corresponding file
+    nTestSamples = None  # specify 'None' if you want to read the whole file
+    df_test = pd.read_csv('data/mnist_test.csv', delimiter=',', nrows=nTestSamples)
+    df_test = df_test[df_test['label'].isin(my_labels)]  # Get samples from the selected digits only
+    target_test = df_test.label
+    data_test = df_test.iloc[:, 1:]
 
-            #################### Create the features #############################
-            # a)
-            # Calculate aspect ratio as the first feature
-            df_train['aspect_ratio'] = data_train.apply(aspect_ratio, axis=1)
+    #################### Create the features #############################
+    # a)
+    # Calculate aspect ratio as the first feature
+    df_train['aspect_ratio'] = data_train.apply(aspect_ratio, axis=1)
 
-            # ## Find and print the max and min aspect ratio for labels 1 and 2
-            # max_1 = df_train[df_train['label'] == 1]['aspect_ratio'].max()
-            # max_2 = df_train[df_train['label'] == 2]['aspect_ratio'].max()
-            # min_1 = df_train[df_train['label'] == 1]['aspect_ratio'].min()
-            # min_2 = df_train[df_train['label'] == 2]['aspect_ratio'].min()
-            # print(max_1, max_2, min_1, min_2)
+    # ## Find and print the max and min aspect ratio for labels 1 and 2
+    # max_1 = df_train[df_train['label'] == 1]['aspect_ratio'].max()
+    # max_2 = df_train[df_train['label'] == 2]['aspect_ratio'].max()
+    # min_1 = df_train[df_train['label'] == 1]['aspect_ratio'].min()
+    # min_2 = df_train[df_train['label'] == 2]['aspect_ratio'].min()
+    # print(max_1, max_2, min_1, min_2)
 
-            # b)
-            ## Draw 10 sample images from the training data to make sure aspect ratio is correct
-            # for sample in range(10):
-            #   # print(aspect_ratio(data_train.iloc[sample]))
-            #   sample_image = data_train.iloc[sample].values.reshape(28, 28)
-            #   visualize_bounding_box(sample_image)
+    # b)
+    ## Draw 10 sample images from the training data to make sure aspect ratio is correct
+    # for sample in range(10):
+    #   # print(aspect_ratio(data_train.iloc[sample]))
+    #   sample_image = data_train.iloc[sample].values.reshape(28, 28)
+    #   visualize_bounding_box(sample_image)
 
-            # c)
-            df_train['aspect_ratio'] = min_max_scaling(df_train['aspect_ratio'])
+    # c)
+    df_train['aspect_ratio'] = min_max_scaling(df_train['aspect_ratio'])
 
-            # d, e)
-            # Create the Classifier object and train the Gaussian parameters (prior, mean, cov)
-            classifier = MyBayesClassifier()
+    # d, e)
+    # Create the Classifier object and train the Gaussian parameters (prior, mean, cov)
+    classifier = MyBayesClassifier()
 
-            # Train the classifier
-            features = ['aspect_ratio']
-            trainData = df_train[features]
-            classifier.train(trainData, target_train)
+    # Train the classifier
+    features = ['aspect_ratio']
+    trainData = df_train[features]
+    classifier.train(trainData, target_train)
 
-            assert (sum(classifier.class_priors.values()) == 1)
+    assert (sum(classifier.class_priors.values()) == 1)
 
-            # f)
-            # Predict on the test samples (for the given feature set)
-            df_test['aspect_ratio'] = data_test.apply(aspect_ratio, axis=1)
-            df_test['aspect_ratio'] = min_max_scaling(df_test['aspect_ratio'])
-            test_data = df_test[features]
-            predictions = classifier.predict(test_data)
+    # f)
+    # Predict on the test samples (for the given feature set)
+    df_test['aspect_ratio'] = data_test.apply(aspect_ratio, axis=1)
+    df_test['aspect_ratio'] = min_max_scaling(df_test['aspect_ratio'])
+    test_data = df_test[features]
+    predictions = classifier.predict(test_data)
 
-            # g)
-            # Calculate accuracy as an example of validation
-            accuracy = accuracy_score(target_test, predictions)
-            print(f"Classification accuracy: {round(accuracy * 100, 4)}%")
+    # g)
+    # Calculate accuracy as an example of validation
+    accuracy = accuracy_score(target_test, predictions)
+    print(f"Classification accuracy: {round(accuracy * 100, 4)}%")
 
-            # h)
-            # Calculate the number of non-zero pixels as the second feature
-            df_train['fg_pixels'] = data_train.apply(foreground_pixels, axis=1)
-            df_train['fg_pixels'] = min_max_scaling(df_train['fg_pixels'])
-            classifier = MyBayesClassifier()
-            features = ['aspect_ratio', 'fg_pixels']
-            trainData = df_train[features]
-            classifier.train(trainData, target_train)
-            assert (sum(classifier.class_priors.values()) == 1)
-            df_test['fg_pixels'] = data_test.apply(foreground_pixels, axis=1)
-            df_test['fg_pixels'] = min_max_scaling(df_test['fg_pixels'])
-            test_data = df_test[features]
-            predictions = classifier.predict(test_data)
-            accuracy = accuracy_score(target_test, predictions)
-            print(f"Classification accuracy: {round(accuracy * 100, 4) }%")
+    # h)
+    # Calculate the number of non-zero pixels as the second feature
+    df_train['fg_pixels'] = data_train.apply(foreground_pixels, axis=1)
+    df_train['fg_pixels'] = min_max_scaling(df_train['fg_pixels'])
+    classifier = MyBayesClassifier()
+    features = ['aspect_ratio', 'fg_pixels']
+    trainData = df_train[features]
+    classifier.train(trainData, target_train)
+    assert (sum(classifier.class_priors.values()) == 1)
+    df_test['fg_pixels'] = data_test.apply(foreground_pixels, axis=1)
+    df_test['fg_pixels'] = min_max_scaling(df_test['fg_pixels'])
+    test_data = df_test[features]
+    predictions = classifier.predict(test_data)
+    accuracy = accuracy_score(target_test, predictions)
+    print(f"Classification accuracy: {round(accuracy * 100, 4) }%")
 
 
-            # i)
-            # Calculate the centroid feature as the third feature
-            df_train['centroid'] = data_train.apply(calculate_centroid, axis=1)
-            df_train['centroid'] = min_max_scaling(df_train['centroid'])
-            classifier = MyBayesClassifier()
-            features = ["aspect_ratio", "fg_pixels", "centroid"]
-            trainData = df_train[features]
-            classifier.train(trainData, target_train)
-            assert (sum(classifier.class_priors.values()) == 1)
-            df_test['centroid'] = data_test.apply(calculate_centroid, axis=1)
-            df_test['centroid'] = min_max_scaling(df_test['centroid'])
-            test_data = df_test[features]
-            predictions = classifier.predict(test_data)
-            accuracy = accuracy_score(target_test, predictions)
-            print(f"Classification accuracy: {round(accuracy * 100, 4)}%")
+    # i)
+    # Calculate the centroid feature as the third feature
+    df_train['centroid'] = data_train.apply(calculate_centroid, axis=1)
+    df_train['centroid'] = min_max_scaling(df_train['centroid'])
+    classifier = MyBayesClassifier()
+    features = ["aspect_ratio", "fg_pixels", "centroid"]
+    trainData = df_train[features]
+    classifier.train(trainData, target_train)
+    assert (sum(classifier.class_priors.values()) == 1)
+    df_test['centroid'] = data_test.apply(calculate_centroid, axis=1)
+    df_test['centroid'] = min_max_scaling(df_test['centroid'])
+    test_data = df_test[features]
+    predictions = classifier.predict(test_data)
+    accuracy = accuracy_score(target_test, predictions)
+    print(f"Classification accuracy: {round(accuracy * 100, 4)}%")
+
+    # j)
+    # Set my_labels to [1, 2, 3]
 
 ###########################################################
 ###########################################################
