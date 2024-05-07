@@ -78,4 +78,4 @@ for p1 = [.1, .25, .5, .75, .9]
     line(x1s, x2s, boundry, 'Color', 'k', 'LineWidth', 2);
 end
 
-saving_figs('C:\Users\harilaos\Desktop\1\SMAP-proj1\exercise1_4\images');
+%saving_figs('C:\Users\harilaos\Desktop\1\SMAP-proj1\exercise1_4\images');

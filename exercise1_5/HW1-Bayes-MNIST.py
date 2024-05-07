@@ -20,7 +20,6 @@ class MyBayesClassifier:
     X (pd.DataFrame): DataFrame with features.
     y (pd.Series): Series with target class labels.
     """
-
         self.classes_ = np.unique(y)
         for class_label in self.classes_:
             # Filter data by class
@@ -33,7 +32,7 @@ class MyBayesClassifier:
             # Adding a small value to the covariance for numerical stability
             self.class_stats[class_label] = {
                 'mean': np.mean(X_class.values, axis=0),
-                'cov': np.cov(X_class, rowvar=False, bias=True)
+                'cov': np.cov(X_class, rowvar=False)
             }
 
     def predict(self, X):
@@ -229,7 +228,7 @@ def visualize_bounding_box(image, color='red'):
 ######    MAIN - CREATE FEATURES - TRAIN (NAIVE) BAYES CLASSIFIER
 ##############################################################################
 def main():
-    my_labels = [1, 2]
+    my_labels = [1, 2, 3]
     print(f"Numbers are {my_labels}")
     # Read the training samples from the corresponding file
     nTrainSamples = None  # specify 'None' if you want to read the whole file
@@ -250,19 +249,18 @@ def main():
     # Calculate aspect ratio as the first feature
     df_train['aspect_ratio'] = data_train.apply(aspect_ratio, axis=1)
 
-    # ## Find and print the max and min aspect ratio for labels 1 and 2
-    # max_1 = df_train[df_train['label'] == 1]['aspect_ratio'].max()
-    # max_2 = df_train[df_train['label'] == 2]['aspect_ratio'].max()
-    # min_1 = df_train[df_train['label'] == 1]['aspect_ratio'].min()
-    # min_2 = df_train[df_train['label'] == 2]['aspect_ratio'].min()
-    # print(max_1, max_2, min_1, min_2)
+    # Find and print the max and min aspect ratio for labels 1 and 2
+    max_1 = df_train[df_train['label'] == 1]['aspect_ratio'].max()
+    max_2 = df_train[df_train['label'] == 2]['aspect_ratio'].max()
+    min_1 = df_train[df_train['label'] == 1]['aspect_ratio'].min()
+    min_2 = df_train[df_train['label'] == 2]['aspect_ratio'].min()
+    print(max_1, max_2, min_1, min_2)
 
     # b)
-    ## Draw 10 sample images from the training data to make sure aspect ratio is correct
-    # for sample in range(10):
-    #   # print(aspect_ratio(data_train.iloc[sample]))
-    #   sample_image = data_train.iloc[sample].values.reshape(28, 28)
-    #   visualize_bounding_box(sample_image)
+    # Draw 10 sample images from the training data to make sure aspect ratio is correct
+    for sample in range(10):
+        sample_image = data_train.iloc[sample].values.reshape(28, 28)
+        visualize_bounding_box(sample_image)
 
     # c)
     df_train['aspect_ratio'] = min_max_scaling(df_train['aspect_ratio'])
@@ -275,7 +273,7 @@ def main():
     features = ['aspect_ratio']
     trainData = df_train[features]
     classifier.train(trainData, target_train)
-
+    print("Apriori probabilities: ", classifier.class_priors)
     assert (sum(classifier.class_priors.values()) == 1)
 
     # f)
@@ -312,7 +310,7 @@ def main():
     df_train['centroid'] = data_train.apply(calculate_centroid, axis=1)
     df_train['centroid'] = min_max_scaling(df_train['centroid'])
     classifier = MyBayesClassifier()
-    features = ["aspect_ratio", "fg_pixels", "centroid"]
+    features = ['aspect_ratio', 'fg_pixels', "centroid"]
     trainData = df_train[features]
     classifier.train(trainData, target_train)
     assert (sum(classifier.class_priors.values()) == 1)
