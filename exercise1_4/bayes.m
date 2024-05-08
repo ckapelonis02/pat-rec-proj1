@@ -26,8 +26,15 @@ for p1 = [.1, .25, .5, .75, .9]
     C = contours(x1, x2, gdiff, [0,0]); %get points where contour is zero
     
     %get seperate coordinates of contour
-    x1s = C(1, 2:end);
-    x2s = C(2, 2:end);
+    my_range = 2:107;
+    x1s = C(1, my_range);
+    x2s = C(2, my_range);
+
+    % Fit a quadratic polynomial to the data
+    p = polyfit(x1s, x2s, 2);
+    
+    % Print the resulting polynomial equation
+    fprintf('(p1 = %.2f) The fitted function is: %.2fx^2 + %.2fx + %.2f\n', p1, p(1), p(2), p(3));
     
     %interporlate contour on gaussian 1
     boundry = interp2(x1, x2, g1, x1s, x2s);
@@ -36,7 +43,7 @@ for p1 = [.1, .25, .5, .75, .9]
     line(x1s, x2s, boundry, 'Color', 'k', 'LineWidth', 2);
 end
 
-fprintf("Program paused. Press enter to continue.\n")
+fprintf("\nProgram paused. Press enter to continue.\n\n")
 pause;
 clear all;
 
@@ -71,6 +78,12 @@ for p1 = [.1, .25, .5, .75, .9]
     x1s = C(1, 2:end);
     x2s = C(2, 2:end);
     
+    % Fit a quadratic polynomial to the data
+    p = polyfit(x1s, x2s, 1);
+    
+    % Print the resulting polynomial equation
+    fprintf('(p1 = %.2f) The fitted function is: %.2fx + %.2f\n', p1, p(1), p(2));
+
     %interporlate contour on gaussian 1
     boundry = interp2(x1, x2, g1, x1s, x2s);
     
@@ -78,4 +91,4 @@ for p1 = [.1, .25, .5, .75, .9]
     line(x1s, x2s, boundry, 'Color', 'k', 'LineWidth', 2);
 end
 
-%saving_figs('C:\Users\harilaos\Desktop\1\SMAP-proj1\exercise1_4\images');
+%saving_figs('C:\\Users\\harilaos\\Desktop\\1\\SMAP-proj1\\exercise1_4\\images');
