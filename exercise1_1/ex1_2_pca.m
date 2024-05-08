@@ -294,4 +294,4 @@ for K = [10, 50, 100, 200, 500]
     axis square;
 end
 
-%saving_figs('C:\Users\harilaos\Desktop\1\SMAP-proj1\exercise1_1\images');
+%saving_figs('C:\\Users\\harilaos\\Desktop\\1\\SMAP-proj1\\exercise1_1\\images');

@@ -172,4 +172,4 @@ plot(IRIS2_reduced(:, 1), IRIS2_reduced(:, 2), 'rs');
 plot(IRIS3_reduced(:, 1), IRIS3_reduced(:, 2), 'g+');
 hold off
 
-% saving_figs('C:\Users\harilaos\Desktop\1\SMAP-proj1\exercise1_3\images');
+% saving_figs('C:\\Users\\harilaos\\Desktop\\1\\SMAP-proj1\\exercise1_3\\images');

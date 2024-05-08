@@ -228,7 +228,7 @@ def visualize_bounding_box(image, color='red'):
 ######    MAIN - CREATE FEATURES - TRAIN (NAIVE) BAYES CLASSIFIER
 ##############################################################################
 def main():
-    my_labels = [1, 2, 3]
+    my_labels = [1, 2]
     print(f"Numbers are {my_labels}")
     # Read the training samples from the corresponding file
     nTrainSamples = None  # specify 'None' if you want to read the whole file
